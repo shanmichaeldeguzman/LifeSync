@@ -85,3 +85,4 @@ Thumbs.db
 *.jks
 /test-results
 /playwright-report
+/www-e2e
