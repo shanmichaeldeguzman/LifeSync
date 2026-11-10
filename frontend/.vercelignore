@@ -1,0 +1,11 @@
+node_modules
+android
+www
+www-e2e
+test-results
+playwright-report
+e2e
+.angular
+.env
+src/environments/runtime-config.ts
+src/app/icons.ts

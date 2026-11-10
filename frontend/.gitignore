@@ -90,3 +90,6 @@ Thumbs.db
 # Kotlin compiler sessions
 /android/.kotlin/
 /android/build.log
+
+# Vercel CLI link
+.vercel

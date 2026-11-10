@@ -7,7 +7,7 @@
 **Your whole life, beautifully in sync.**<br/>
 Tasks, calendar, habits, notes, money, documents and goals in one private, offline-first app for Android, iOS, tablets and the web.
 
-**Live app:** _deployment pending (see [Deployment](#deployment))_
+**Live app:** <https://lifesync-roan-nine.vercel.app> · **API:** <https://lifesync-api-psi.vercel.app/api/health>
 
 </div>
 
@@ -153,9 +153,14 @@ cd frontend && npm test          # unit tests: streaks, recurrence, sync payload
 cd frontend && npx playwright test   # 21 e2e tests on phone, tablet and desktop viewports
 ```
 
+Against production: `backend/scripts/isolation-check.mjs` (61 API/RLS/storage checks) and
+`npx playwright test -c playwright.live.config.ts` (14 real-browser tests on desktop + phone).
+
 See **[docs/TESTING.md](docs/TESTING.md)** for what each suite covers and the latest results. After deploying, `backend/scripts/isolation-check.mjs` verifies the live system end-to-end, including cross-account isolation.
 
 ## Deployment
+
+The live deployment runs on **Supabase Free** (Singapore region: Postgres, Auth, Storage, pg_cron) and **Vercel Hobby** (web app + API).
 
 Free-tier setup (Supabase + Vercel + GitHub), step by step: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**, including free-tier limitations and the post-deployment checklist.
 

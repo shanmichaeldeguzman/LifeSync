@@ -21,8 +21,27 @@ android   ./gradlew assembleDebug: BUILD SUCCESSFUL (app-debug.apk, 9.2 MB; JDK 
 
 Bugs found and fixed by these suites during development included: checklist items losing their state in rendered Markdown, the brand colour being overridden by Ionic's defaults, inconsistent "overdue" counts between the stats and the grouped list, the account theme overriding a device-specific theme on every launch, and toasts rendering underneath the mobile navigation.
 
+## Production results (2026-11-10, https://lifesync-roan-nine.vercel.app)
+
+```
+isolation-check.mjs   61 passed, 0 failed
+  every module CRUD, idempotent replay, 409 conflicts, 422 validation, budget alerts,
+  recurring transactions, reminders, finance summary, CSV, sync pull, private upload,
+  60 s signed URL, no public URL; user B blocked from listing/reading/updating/deleting/
+  downloading user A's data via API, Supabase REST and Storage; anon sees nothing;
+  document + file deletion; data export; password-checked account deletion; full cleanup
+live e2e (Playwright)  14 passed (desktop + phone)
+  real sign-in → dashboard; task, event, note (autosave), habit + check-in, transaction,
+  goal all verified in the production DB; document upload → preview → delete; offline
+  task → Local badge → reconnect → synced; profile update; password reset via recovery
+  link; sign-out clears IndexedDB and protects routes
+sign-up (Supabase Auth) user created, confirmation required
+```
+
+Live suite: `LIVE_URL=… SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… npx playwright test -c playwright.live.config.ts` (creates and deletes a temporary user).
+
 ## Not covered automatically
 
-- Real email delivery (verification / password reset) and Supabase Auth itself: verify manually after deployment (see the checklist in [DEPLOYMENT.md](DEPLOYMENT.md)).
+- Real email delivery (verification / password-reset emails). Supabase's built-in mailer only delivers to the project team's addresses; configure SMTP (see [DEPLOYMENT.md](DEPLOYMENT.md)) for all users.
 - OS-level notification delivery on Android: verify on a device with *Settings → Notifications → Send test*.
 - iOS builds (requires macOS/Xcode).
