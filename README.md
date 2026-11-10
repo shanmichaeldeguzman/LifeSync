@@ -7,7 +7,7 @@
 **Your whole life, beautifully in sync.**<br/>
 Tasks, calendar, habits, notes, money, documents and goals in one private, offline-first app for Android, iOS, tablets and the web.
 
-**Live app:** <https://lifesync-roan-nine.vercel.app> · **API:** <https://lifesync-api-psi.vercel.app/api/health>
+**Live app:** <https://lifesync-roan-nine.vercel.app> · **Android:** [download APK](https://github.com/shanmichaeldeguzman/LifeSync/releases/latest) · **API:** <https://lifesync-api-psi.vercel.app/api/health>
 
 </div>
 
