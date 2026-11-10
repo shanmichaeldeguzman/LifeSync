@@ -16,7 +16,7 @@ backend   Test Files 3 passed (3)    Tests 53 passed (53)
 frontend  Test Files 1 passed (1)    Tests 17 passed (17)
 e2e       21 passed (phone, tablet, desktop)
 build     ng build (production) OK: initial bundle 1.34 MB raw / ~306 kB transferred
-android   assembleDebug: see README / release notes
+android   ./gradlew assembleDebug: BUILD SUCCESSFUL (app-debug.apk, 9.2 MB; JDK 21, SDK 36)
 ```
 
 Bugs found and fixed by these suites during development included: checklist items losing their state in rendered Markdown, the brand colour being overridden by Ionic's defaults, inconsistent "overdue" counts between the stats and the grouped list, the account theme overriding a device-specific theme on every launch, and toasts rendering underneath the mobile navigation.
