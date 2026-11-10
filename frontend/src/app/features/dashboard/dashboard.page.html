@@ -1,0 +1,161 @@
+<ion-header class="ion-hide-lg-up">
+  <ion-toolbar>
+    <ion-title>
+      <span class="brand"><span class="logo"><ion-icon name="sync"></ion-icon></span>LifeSync</span>
+    </ion-title>
+    <ion-buttons slot="end"><app-header-actions></app-header-actions></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)"><ion-refresher-content></ion-refresher-content></ion-refresher>
+  <div class="ls-page">
+    <section class="hero ls-fade-in">
+      <div class="hero-text">
+        <p class="date">{{ dateLabel() }} · {{ timeLabel() }}</p>
+        <h1>{{ greeting() }}, {{ firstName() }}</h1>
+        <p class="sub">
+          @if (taskStats().total - taskStats().done > 0) {
+            You have {{ taskStats().total - taskStats().done }} task{{ taskStats().total - taskStats().done === 1 ? '' : 's' }} for today@if (upcoming().length) { and {{ upcoming().length }} upcoming event{{ upcoming().length === 1 ? '' : 's' }} }.
+          } @else {
+            Your day is clear. A great time to plan ahead.
+          }
+        </p>
+      </div>
+      <div class="hero-actions ion-hide-lg-down"><app-header-actions></app-header-actions></div>
+    </section>
+
+    <nav class="quick" aria-label="Quick actions">
+      <button (click)="newTask()"><span style="--c:#635BFF"><ion-icon name="checkbox-outline"></ion-icon></span>Task</button>
+      <button (click)="newEvent()"><span style="--c:#0EA5E9"><ion-icon name="calendar-outline"></ion-icon></span>Event</button>
+      <button (click)="newNote()"><span style="--c:#F59E0B"><ion-icon name="create-outline"></ion-icon></span>Note</button>
+      <button (click)="newExpense()"><span style="--c:#22C55E"><ion-icon name="wallet-outline"></ion-icon></span>Expense</button>
+      <button routerLink="/habits"><span style="--c:#14B8A6"><ion-icon name="leaf-outline"></ion-icon></span>Habits</button>
+      <button (click)="newDocument()"><span style="--c:#8B5CF6"><ion-icon name="cloud-upload-outline"></ion-icon></span>Document</button>
+    </nav>
+
+    <div class="ls-stats stats">
+      <a class="ls-stat" routerLink="/tasks"><div class="label">Today's tasks</div><div class="value">{{ taskStats().done }}<small>/{{ taskStats().total }}</small></div><div class="sub">@if (taskStats().overdue) { <span class="danger">{{ taskStats().overdue }} overdue</span> } @else { {{ taskStats().open }} open overall }</div></a>
+      <a class="ls-stat" routerLink="/habits"><div class="label">Habits today</div><div class="value">{{ habitPct() }}%</div><div class="sub">{{ todayHabits().length }} scheduled</div></a>
+      <a class="ls-stat" routerLink="/finance"><div class="label">Spent this month</div><div class="value ls-money">{{ finance.format(monthTotals().expense) }}</div><div class="sub">Net {{ finance.format(monthTotals().net) }}</div></a>
+      <a class="ls-stat" routerLink="/notifications"><div class="label">Notifications</div><div class="value">{{ unread() }}</div><div class="sub">unread</div></a>
+    </div>
+
+    @if (loading()) {
+      <app-skeleton variant="cards" [rows]="6"></app-skeleton>
+    } @else {
+      <div class="widgets">
+        @for (w of widgets(); track w) {
+          @switch (w) {
+            @case ('tasks') {
+              <section class="ls-card flush widget">
+                <div class="ls-card-header pad"><h3><ion-icon name="checkbox-outline"></ion-icon> Today's tasks</h3><a routerLink="/tasks">View all</a></div>
+                @for (t of todayTasks().slice(0, 6); track t.id) {
+                  <app-task-row [task]="t" (open)="editTask($event)"></app-task-row>
+                } @empty {
+                  <app-empty-state [compact]="true" icon="sunny-outline" title="Nothing due today" message="Add a task to give your day some direction." actionText="Add task" (action)="newTask()"></app-empty-state>
+                }
+              </section>
+            }
+            @case ('events') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="calendar-outline"></ion-icon> Upcoming events</h3><a routerLink="/calendar">Calendar</a></div>
+                @for (e of upcoming(); track e.key) {
+                  <a class="event" [routerLink]="'/calendar'" [queryParams]="{ date: e.date }">
+                    <span class="bar" [style.background]="e.color"></span>
+                    <div><strong>{{ e.title }}</strong><span>{{ e.day }} · {{ e.when }}</span></div>
+                  </a>
+                } @empty {
+                  <app-empty-state [compact]="true" icon="calendar-clear-outline" title="No upcoming events" message="Your next 7 days are open." actionText="Add event" (action)="newEvent()"></app-empty-state>
+                }
+              </section>
+            }
+            @case ('habits') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="leaf-outline"></ion-icon> Habits</h3><a routerLink="/habits">Open</a></div>
+                @if (todayHabits().length) {
+                  <div class="habits-head">
+                    <app-progress-ring [value]="habitPct()" [size]="58" [stroke]="7" color="var(--ion-color-success)"></app-progress-ring>
+                    <span class="ls-muted ls-small">{{ habitPct() === 100 ? 'All done today. Nice!' : 'Keep it light, one at a time.' }}</span>
+                  </div>
+                  @for (h of todayHabits().slice(0, 5); track h.habit.id) {
+                    <div class="habit">
+                      <span class="ls-icon-tile sm" [style.background]="h.habit.color + '1f'" [style.color]="h.habit.color"><ion-icon [name]="h.habit.icon"></ion-icon></span>
+                      <div class="grow"><strong>{{ h.habit.name }}</strong>@if (h.streak) { <span class="streak"><ion-icon name="flame"></ion-icon>{{ h.streak }}</span> }</div>
+                      <button class="hcheck" [class.done]="h.done" [style.--c]="h.habit.color" (click)="toggleHabit(h.habit, $event)" [attr.aria-label]="(h.done ? 'Undo ' : 'Complete ') + h.habit.name"><ion-icon [name]="h.done ? 'checkmark' : 'add'"></ion-icon></button>
+                    </div>
+                  }
+                } @else {
+                  <app-empty-state [compact]="true" icon="leaf-outline" title="No habits today" message="Build a routine with a small daily habit."></app-empty-state>
+                }
+              </section>
+            }
+            @case ('finance') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="wallet-outline"></ion-icon> This month</h3><a routerLink="/finance">Finance</a></div>
+                <div class="fin">
+                  <div><span>Income</span><strong class="ls-money income">{{ finance.format(monthTotals().income) }}</strong></div>
+                  <div><span>Expenses</span><strong class="ls-money">{{ finance.format(monthTotals().expense) }}</strong></div>
+                </div>
+                @for (c of topSpending(); track c.name) {
+                  <div class="spend">
+                    <div class="row"><span><span class="ls-dot" [style.background]="c.color"></span> {{ c.name }}</span><strong>{{ finance.format(c.total) }}</strong></div>
+                    <div class="ls-progress"><span [style.width.%]="monthTotals().expense ? (c.total / monthTotals().expense) * 100 : 0" [style.background]="c.color"></span></div>
+                  </div>
+                }
+                @for (b of budgetAlerts().slice(0, 2); track b.name) {
+                  <div class="ls-banner" [class.danger]="b.pct >= 100" [class.warning]="b.pct < 100" style="margin-top:10px;padding:8px 12px"><ion-icon name="alert-circle-outline"></ion-icon>{{ b.name }} budget at {{ b.pct }}%</div>
+                }
+                <p class="ls-hint" style="margin-bottom:0">Manually recorded amounts</p>
+              </section>
+            }
+            @case ('goals') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="flag-outline"></ion-icon> Active goals</h3><a routerLink="/goals">All goals</a></div>
+                @for (g of goals(); track g.goal.id) {
+                  <a class="goal" [routerLink]="['/goals', g.goal.id]">
+                    <div class="row"><strong class="ls-truncate">{{ g.goal.title }}</strong><span>{{ g.progress }}%</span></div>
+                    <div class="ls-progress"><span [style.width.%]="g.progress"></span></div>
+                    <span class="ls-small ls-muted">{{ g.cat.label }}@if (g.goal.target_date) { · by {{ g.goal.target_date }} }</span>
+                  </a>
+                } @empty {
+                  <app-empty-state [compact]="true" icon="flag-outline" title="No active goals" message="Set a goal and track it with milestones."></app-empty-state>
+                }
+              </section>
+            }
+            @case ('notes') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="document-text-outline"></ion-icon> Recent notes</h3><a routerLink="/notes">All notes</a></div>
+                @for (n of notes(); track n.id) {
+                  <a class="note" [routerLink]="['/notes', n.id]">
+                    <strong class="ls-truncate">@if (n.is_pinned) { <ion-icon name="pin"></ion-icon> }{{ n.title || 'Untitled' }}</strong>
+                    <span class="ls-truncate">{{ excerpt(n.content) || 'Empty note' }}</span>
+                    <small>{{ ago(n.updated_at) }}</small>
+                  </a>
+                } @empty {
+                  <app-empty-state [compact]="true" icon="document-text-outline" title="No notes yet" actionText="Write a note" (action)="newNote()"></app-empty-state>
+                }
+              </section>
+            }
+            @case ('reminders') {
+              <section class="ls-card widget">
+                <div class="ls-card-header"><h3><ion-icon name="notifications-outline"></ion-icon> Upcoming reminders</h3><a routerLink="/notifications">Center</a></div>
+                @for (r of upcomingReminders(); track r.key) {
+                  <a class="reminder" [routerLink]="r.route">
+                    <ion-icon name="alarm-outline"></ion-icon>
+                    <div><strong class="ls-truncate">{{ r.title }}</strong><span class="ls-truncate">{{ r.body }} · {{ reminderTime(r.at) }}</span></div>
+                  </a>
+                } @empty {
+                  <app-empty-state [compact]="true" icon="alarm-outline" title="No reminders scheduled" message="Add reminders to tasks, events, habits or goals."></app-empty-state>
+                }
+              </section>
+            }
+          }
+        }
+      </div>
+      <div style="text-align:center;margin-top:18px">
+        <a class="customize" routerLink="/settings" [queryParams]="{ section: 'dashboard' }"><ion-icon name="options-outline"></ion-icon> Customize dashboard</a>
+      </div>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/notes" text=""></ion-back-button></ion-buttons>
+    <div class="status" aria-live="polite">
+      @if (saveState() === 'saving') { <ion-spinner name="dots"></ion-spinner> }
+      @else if (note()?._status === 'pending') { <ion-icon name="cloud-upload-outline"></ion-icon> }
+      @else if (note()) { <ion-icon name="cloud-done-outline" class="ok"></ion-icon> }
+      <span>{{ statusLabel() }}</span>
+    </div>
+    <ion-buttons slot="end">
+      <button class="ls-icon-btn ghost" (click)="togglePin()" [attr.aria-label]="note()?.is_pinned ? 'Unpin' : 'Pin'" title="Pin"><ion-icon [name]="note()?.is_pinned ? 'pin' : 'pin-outline'"></ion-icon></button>
+      <button class="ls-icon-btn ghost" (click)="toggleFavorite()" [attr.aria-label]="note()?.is_favorite ? 'Remove from favorites' : 'Add to favorites'" title="Favorite"><ion-icon [name]="note()?.is_favorite ? 'star' : 'star-outline'" [class.fav]="note()?.is_favorite"></ion-icon></button>
+      <button class="ls-icon-btn ghost" (click)="toggleArchive()" [attr.aria-label]="note()?.is_archived ? 'Unarchive' : 'Archive'" title="Archive"><ion-icon [name]="note()?.is_archived ? 'arrow-undo-outline' : 'archive-outline'"></ion-icon></button>
+      <button class="ls-icon-btn ghost" (click)="remove()" aria-label="Delete note" title="Delete"><ion-icon name="trash-outline"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ls-page narrow editor-page">
+    @if (missing()) {
+      <div class="ls-banner warning"><ion-icon name="alert-circle"></ion-icon>This note doesn't exist or was deleted.</div>
+    } @else {
+      @if (note()?.is_archived) {
+        <div class="ls-banner" style="margin-bottom:12px"><ion-icon name="archive-outline"></ion-icon>This note is archived.</div>
+      }
+      <input class="title-input" [(ngModel)]="title" (ngModelChange)="changed()" placeholder="Untitled" maxlength="200" aria-label="Note title" />
+      <div class="meta-row">
+        <select class="cat" [(ngModel)]="categoryId" (ngModelChange)="changed()" aria-label="Category">
+          <option [ngValue]="null">No category</option>
+          @for (c of categories(); track c.id) { <option [ngValue]="c.id">{{ c.name }}</option> }
+        </select>
+        @if (note(); as n) { <span class="ls-small ls-muted">Created {{ created(n) }}</span> }
+      </div>
+
+      <div class="ls-card flush editor-card">
+        <div class="toolbar">
+          <div class="ls-segmented mode" role="tablist" aria-label="Editor mode">
+            <button role="tab" [class.active]="mode() === 'write'" (click)="setMode('write')">Write</button>
+            <button role="tab" [class.active]="mode() === 'preview'" (click)="setMode('preview')">Preview</button>
+          </div>
+          @if (mode() === 'write') {
+            <div class="fmt" role="toolbar" aria-label="Formatting">
+              <button (click)="format('bold')" aria-label="Bold" title="Bold"><b>B</b></button>
+              <button (click)="format('italic')" aria-label="Italic" title="Italic"><i>I</i></button>
+              <button (click)="format('heading')" aria-label="Heading" title="Heading">H</button>
+              <button (click)="format('list')" aria-label="Bulleted list" title="List"><ion-icon name="list-outline"></ion-icon></button>
+              <button (click)="format('checklist')" aria-label="Checklist" title="Checklist"><ion-icon name="checkbox-outline"></ion-icon></button>
+              <button (click)="format('quote')" aria-label="Quote" title="Quote"><ion-icon name="chatbox-outline"></ion-icon></button>
+              <button (click)="format('code')" aria-label="Code" title="Code"><ion-icon name="code-slash-outline"></ion-icon></button>
+              <button (click)="format('link')" aria-label="Link" title="Link"><ion-icon name="link-outline"></ion-icon></button>
+            </div>
+          }
+        </div>
+        @if (mode() === 'write') {
+          <textarea #editor class="editor" [(ngModel)]="content" (ngModelChange)="changed()" placeholder="Start writing… Markdown is supported." aria-label="Note content" maxlength="100000"></textarea>
+        } @else {
+          <div class="preview markdown" [innerHTML]="preview() || '<p class=empty>Nothing to preview yet.</p>'"></div>
+        }
+      </div>
+
+      <section class="attachments">
+        <div class="ls-card-header">
+          <h3><ion-icon name="attach-outline"></ion-icon> Attachments</h3>
+          <button class="link" (click)="addAttachment()" [disabled]="uploading()">
+            @if (uploading()) { <ion-spinner name="crescent" style="width:16px;height:16px"></ion-spinner> } @else { + Add file }
+          </button>
+        </div>
+        @if (attachments().length) {
+          <div class="ls-card flush">
+            @for (a of attachments(); track a.id) {
+              <div class="ls-row">
+                <span class="ls-icon-tile sm"><ion-icon [name]="a.mime_type.startsWith('image/') ? 'image-outline' : 'document-outline'"></ion-icon></span>
+                <div class="grow"><div class="title">{{ a.file_name }}</div><div class="meta">{{ size(a.size_bytes) }}</div></div>
+                <button class="ls-icon-btn ghost" (click)="openAttachment(a)" aria-label="Download"><ion-icon name="download-outline"></ion-icon></button>
+                <button class="ls-icon-btn ghost" (click)="removeAttachment(a)" aria-label="Remove attachment"><ion-icon name="trash-outline"></ion-icon></button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="ls-small ls-muted">Attach images, PDFs or text files (up to 10 MB). Requires an internet connection.</p>
+        }
+      </section>
+    }
+  </div>
+</ion-content>

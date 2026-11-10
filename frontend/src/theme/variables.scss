@@ -1,0 +1,168 @@
+/*
+ * LifeSync design tokens
+ * ----------------------------------------------------------------------------
+ * Brand palette mapped onto Ionic's color system plus app-level tokens
+ * (surfaces, text, borders, radii, shadows). Dark mode is driven by the
+ * `.ion-palette-dark` class on <html>, toggled by ThemeService.
+ */
+
+:root {
+  /* Brand */
+  --ion-color-primary: #635bff;
+  --ion-color-primary-rgb: 99, 91, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #5750e0;
+  --ion-color-primary-tint: #736bff;
+
+  --ion-color-secondary: #8b85ff;
+  --ion-color-secondary-rgb: 139, 133, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #7a75e0;
+  --ion-color-secondary-tint: #9791ff;
+
+  --ion-color-success: #22c55e;
+  --ion-color-success-rgb: 34, 197, 94;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #1ead53;
+  --ion-color-success-tint: #38cb6e;
+
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #171923;
+  --ion-color-warning-contrast-rgb: 23, 25, 35;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6a823;
+
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  --ion-color-medium: #718096;
+  --ion-color-medium-rgb: 113, 128, 150;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #637184;
+  --ion-color-medium-tint: #7f8da1;
+
+  --ion-color-light: #f1f3f9;
+  --ion-color-light-rgb: 241, 243, 249;
+  --ion-color-light-contrast: #171923;
+  --ion-color-light-contrast-rgb: 23, 25, 35;
+  --ion-color-light-shade: #d4d6db;
+  --ion-color-light-tint: #f2f4fa;
+
+  --ion-color-dark: #171923;
+  --ion-color-dark-rgb: 23, 25, 35;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #14161f;
+  --ion-color-dark-tint: #2e3039;
+
+  /* Surfaces & text */
+  --ion-background-color: #f7f8fc;
+  --ion-background-color-rgb: 247, 248, 252;
+  --ion-text-color: #171923;
+  --ion-text-color-rgb: 23, 25, 35;
+  --ion-card-background: #ffffff;
+  --ion-item-background: transparent;
+  --ion-toolbar-background: #f7f8fc;
+  --ion-tab-bar-background: #ffffff;
+  --ion-border-color: #e7e9f2;
+  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --ls-surface: #ffffff;
+  --ls-surface-2: #f1f3f9;
+  --ls-surface-hover: #f4f5fb;
+  --ls-text: #171923;
+  --ls-text-2: #718096;
+  --ls-text-3: #a0aec0;
+  --ls-border: #e7e9f2;
+  --ls-border-strong: #d8dbe8;
+  --ls-primary-soft: rgba(99, 91, 255, 0.1);
+  --ls-success-soft: rgba(34, 197, 94, 0.12);
+  --ls-warning-soft: rgba(245, 158, 11, 0.14);
+  --ls-danger-soft: rgba(239, 68, 68, 0.1);
+  --ls-info: #0ea5e9;
+  --ls-info-soft: rgba(14, 165, 233, 0.12);
+
+  --ls-radius-sm: 10px;
+  --ls-radius: 14px;
+  --ls-radius-lg: 20px;
+  --ls-shadow-sm: 0 1px 2px rgba(23, 25, 35, 0.04), 0 1px 3px rgba(23, 25, 35, 0.04);
+  --ls-shadow: 0 1px 2px rgba(23, 25, 35, 0.04), 0 4px 16px rgba(23, 25, 35, 0.06);
+  --ls-shadow-lg: 0 12px 40px rgba(23, 25, 35, 0.12);
+  --ls-gradient: linear-gradient(135deg, #635bff 0%, #8b85ff 100%);
+
+  --ls-sidebar-width: 264px;
+  --ls-sidebar-collapsed: 76px;
+  --ls-bottom-nav-height: 64px;
+}
+
+/* ---------------- Dark theme ---------------- */
+:root.ion-palette-dark {
+  --ion-color-primary: #7c75ff;
+  --ion-color-primary-rgb: 124, 117, 255;
+  --ion-color-primary-shade: #6d67e0;
+  --ion-color-primary-tint: #8983ff;
+
+  --ion-color-medium: #94a3b8;
+  --ion-color-medium-rgb: 148, 163, 184;
+
+  --ion-color-light: #1f2230;
+  --ion-color-light-rgb: 31, 34, 48;
+  --ion-color-light-contrast: #e8eaf2;
+  --ion-color-light-contrast-rgb: 232, 234, 242;
+
+  --ion-color-dark: #e8eaf2;
+  --ion-color-dark-rgb: 232, 234, 242;
+  --ion-color-dark-contrast: #0f1117;
+
+  --ion-background-color: #0f1117;
+  --ion-background-color-rgb: 15, 17, 23;
+  --ion-text-color: #e8eaf2;
+  --ion-text-color-rgb: 232, 234, 242;
+  --ion-card-background: #171a23;
+  --ion-toolbar-background: #0f1117;
+  --ion-tab-bar-background: #171a23;
+  --ion-border-color: #262a37;
+  --ion-item-background: transparent;
+  --ion-overlay-background-color: #171a23;
+  --ion-color-step-50: #1a1d27;
+  --ion-color-step-100: #222532;
+  --ion-color-step-150: #2a2e3c;
+  --ion-color-step-200: #323646;
+  --ion-color-step-250: #3a3f50;
+  --ion-color-step-300: #444a5c;
+  --ion-color-step-400: #5c6377;
+  --ion-color-step-500: #767d92;
+  --ion-color-step-600: #9097ab;
+  --ion-color-step-700: #aab0c2;
+  --ion-color-step-800: #c4c9d7;
+  --ion-color-step-850: #d1d5e1;
+  --ion-color-step-900: #dee1ea;
+  --ion-color-step-950: #ebedf3;
+
+  --ls-surface: #171a23;
+  --ls-surface-2: #1f2230;
+  --ls-surface-hover: #1d2029;
+  --ls-text: #e8eaf2;
+  --ls-text-2: #9aa3b5;
+  --ls-text-3: #6b7387;
+  --ls-border: #262a37;
+  --ls-border-strong: #333849;
+  --ls-primary-soft: rgba(124, 117, 255, 0.16);
+  --ls-success-soft: rgba(34, 197, 94, 0.16);
+  --ls-warning-soft: rgba(245, 158, 11, 0.16);
+  --ls-danger-soft: rgba(239, 68, 68, 0.16);
+  --ls-info-soft: rgba(14, 165, 233, 0.16);
+  --ls-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ls-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --ls-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --ls-gradient: linear-gradient(135deg, #635bff 0%, #8b85ff 100%);
+}

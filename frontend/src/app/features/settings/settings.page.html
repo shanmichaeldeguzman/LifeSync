@@ -1,0 +1,179 @@
+<ion-header class="ion-hide-lg-up">
+  <ion-toolbar><ion-title>Settings</ion-title></ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ls-page narrow">
+    <div class="ls-page-header"><div><h1>Settings</h1><p>Manage your account, preferences and privacy</p></div></div>
+
+    @if (!network.online()) {
+      <div class="ls-banner warning" style="margin-bottom:16px"><ion-icon name="cloud-offline-outline"></ion-icon>You're offline. Account changes will be available when you reconnect.</div>
+    }
+
+    <!-- Profile -->
+    <section class="ls-card section" id="section-profile">
+      <h2><ion-icon name="person-circle-outline"></ion-icon> Profile</h2>
+      <div class="avatar-row">
+        <app-avatar [path]="data.profile()?.avatar_path ?? null" [initials]="userInitials()" [size]="72"></app-avatar>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <ion-button size="small" fill="outline" (click)="changeAvatar()" [disabled]="uploadingAvatar()">
+            @if (uploadingAvatar()) { <ion-spinner name="crescent"></ion-spinner> } @else { <ion-icon slot="start" name="camera-outline"></ion-icon>Change photo }
+          </ion-button>
+          @if (data.profile()?.avatar_path) { <ion-button size="small" fill="clear" color="medium" (click)="removeAvatar()">Remove</ion-button> }
+        </div>
+      </div>
+      <form class="ls-form" (ngSubmit)="saveProfile()">
+        <div>
+          <label class="ls-field-label" for="s-name">Full name</label>
+          <input id="s-name" name="name" class="ls-native-input" [(ngModel)]="fullName" maxlength="120" autocomplete="name" />
+        </div>
+        <div class="ls-form-row two">
+          <div>
+            <label class="ls-field-label" for="s-tz">Time zone</label>
+            <select id="s-tz" name="tz" class="ls-native-input" [(ngModel)]="timezone">
+              @for (tz of timezones; track tz) { <option [value]="tz">{{ tz }}</option> }
+            </select>
+          </div>
+          <div>
+            <label class="ls-field-label" for="s-cur">Currency</label>
+            <select id="s-cur" name="cur" class="ls-native-input" [(ngModel)]="currency">
+              @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+            </select>
+          </div>
+        </div>
+        <div class="right"><ion-button type="submit" [disabled]="savingProfile() || !network.online()">Save profile</ion-button></div>
+      </form>
+    </section>
+
+    <!-- Account -->
+    <section class="ls-card section" id="section-account">
+      <h2><ion-icon name="key-outline"></ion-icon> Account & security</h2>
+      <div class="row-item">
+        <div><strong>Email</strong><span>{{ auth.user()?.email }}</span></div>
+        <ion-button size="small" fill="outline" (click)="changeEmail()">Change</ion-button>
+      </div>
+      <form class="ls-form" (ngSubmit)="changePassword()" style="margin-top:12px">
+        <strong style="font-size:0.92rem">Change password</strong>
+        <input class="ls-native-input" name="cur" type="password" [(ngModel)]="currentPassword" placeholder="Current password" autocomplete="current-password" aria-label="Current password" />
+        <div class="ls-form-row two">
+          <input class="ls-native-input" name="new" type="password" [(ngModel)]="newPassword" placeholder="New password" autocomplete="new-password" aria-label="New password" />
+          <input class="ls-native-input" name="confirm" type="password" [(ngModel)]="confirmPassword" placeholder="Confirm new password" autocomplete="new-password" aria-label="Confirm new password" />
+        </div>
+        @if (newPassword) { <div class="meter">@for (i of [0, 1, 2, 3]; track i) { <span [class.on]="pwScore() > i" [attr.data-score]="pwScore()"></span> }</div> }
+        @if (passwordError()) { <div class="ls-field-error">{{ passwordError() }}</div> }
+        <div class="right"><ion-button type="submit" [disabled]="savingPassword() || !network.online()">Update password</ion-button></div>
+      </form>
+    </section>
+
+    <!-- Appearance -->
+    <section class="ls-card section" id="section-appearance">
+      <h2><ion-icon name="color-palette-outline"></ion-icon> Appearance</h2>
+      <div class="ls-segmented themes">
+        <button [class.active]="theme.mode() === 'system'" (click)="setTheme('system')"><ion-icon name="phone-portrait-outline"></ion-icon> System</button>
+        <button [class.active]="theme.mode() === 'light'" (click)="setTheme('light')"><ion-icon name="sunny-outline"></ion-icon> Light</button>
+        <button [class.active]="theme.mode() === 'dark'" (click)="setTheme('dark')"><ion-icon name="moon-outline"></ion-icon> Dark</button>
+      </div>
+      <div class="row-item" style="margin-top:14px">
+        <div><strong>Week starts on</strong><span>Used by the calendar</span></div>
+        <select class="ls-native-input" style="width:140px" [ngModel]="prefs()?.week_starts_on ?? 0" (ngModelChange)="savePrefs({ week_starts_on: +$event })" aria-label="Week starts on">
+          <option [ngValue]="0">Sunday</option><option [ngValue]="1">Monday</option><option [ngValue]="6">Saturday</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="ls-card section" id="section-dashboard">
+      <h2><ion-icon name="grid-outline"></ion-icon> Dashboard</h2>
+      <p class="ls-muted ls-small">Choose which cards appear on your dashboard and in what order.</p>
+      <div class="widgets">
+        @for (w of orderedWidgets(); track w.id; let first = $first) {
+          <div class="widget" [class.off]="!widgetEnabled(w.id)">
+            <ion-icon [name]="w.icon"></ion-icon>
+            <span class="grow">{{ w.label }}</span>
+            @if (widgetEnabled(w.id)) {
+              <button class="ls-icon-btn ghost" (click)="moveWidget(w.id, -1)" [disabled]="first" aria-label="Move up"><ion-icon name="arrow-up"></ion-icon></button>
+              <button class="ls-icon-btn ghost" (click)="moveWidget(w.id, 1)" aria-label="Move down"><ion-icon name="arrow-down"></ion-icon></button>
+            }
+            <input type="checkbox" class="switch" role="switch" [checked]="widgetEnabled(w.id)" (change)="toggleWidget(w.id)" [attr.aria-label]="'Show ' + w.label" />
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section class="ls-card section" id="section-notifications">
+      <h2><ion-icon name="notifications-outline"></ion-icon> Notifications</h2>
+      <div class="row-item">
+        <div>
+          <strong>Device notifications</strong>
+          <span>
+            @switch (reminders.permission()) {
+              @case ('granted') { Allowed on this device }
+              @case ('denied') { Blocked. Enable them in your {{ reminders.native ? 'phone' : 'browser' }} settings }
+              @case ('unsupported') { Not supported on this browser }
+              @default { Not enabled yet }
+            }
+          </span>
+        </div>
+        @if (reminders.permission() === 'prompt') { <ion-button size="small" (click)="reminders.requestPermission()">Allow</ion-button> }
+        @if (reminders.permission() === 'granted') { <ion-button size="small" fill="outline" (click)="reminders.sendTest()">Send test</ion-button> }
+      </div>
+      <p class="ls-hint">{{ reminders.native ? 'On this device, reminders are scheduled locally and arrive even when LifeSync is closed.' : 'In the browser, reminders appear while LifeSync is open (or installed and running). Install the Android app for reminders when the app is closed. All reminders are also saved in your Notification Center.' }}</p>
+
+      @if (prefs(); as p) {
+        <div class="toggles">
+          <label class="toggle"><span><strong>Reminders enabled</strong><small>Master switch for device alerts</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.push_enabled" (change)="savePrefs({ push_enabled: !p.push_enabled }, false)" /></label>
+          <label class="toggle"><span><strong>Tasks</strong><small>Reminders and due soon</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_tasks" (change)="savePrefs({ notify_tasks: !p.notify_tasks }, false)" /></label>
+          <label class="toggle"><span><strong>Events</strong><small>Before events start</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_events" (change)="savePrefs({ notify_events: !p.notify_events }, false)" /></label>
+          <label class="toggle"><span><strong>Habits</strong><small>Gentle daily check-ins</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_habits" (change)="savePrefs({ notify_habits: !p.notify_habits }, false)" /></label>
+          <label class="toggle"><span><strong>Budgets</strong><small>At 80% and 100% of a limit</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_budgets" (change)="savePrefs({ notify_budgets: !p.notify_budgets }, false)" /></label>
+          <label class="toggle"><span><strong>Documents</strong><small>Before documents expire</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_documents" (change)="savePrefs({ notify_documents: !p.notify_documents }, false)" /></label>
+          <label class="toggle"><span><strong>Goals</strong><small>Deadlines and check-ins</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.notify_goals" (change)="savePrefs({ notify_goals: !p.notify_goals }, false)" /></label>
+        </div>
+        <div class="ls-form-row two" style="margin-top:14px">
+          <div>
+            <label class="ls-field-label" for="s-evrem">Default event reminder</label>
+            <select id="s-evrem" class="ls-native-input" [ngModel]="p.default_event_reminder_minutes" (ngModelChange)="savePrefs({ default_event_reminder_minutes: +$event })">
+              <option [ngValue]="0">At start time</option><option [ngValue]="5">5 minutes before</option><option [ngValue]="15">15 minutes before</option><option [ngValue]="30">30 minutes before</option><option [ngValue]="60">1 hour before</option><option [ngValue]="1440">1 day before</option>
+            </select>
+          </div>
+          <div>
+            <label class="ls-field-label" for="s-docrem">Default document reminder</label>
+            <select id="s-docrem" class="ls-native-input" [ngModel]="p.document_reminder_days" (ngModelChange)="savePrefs({ document_reminder_days: +$event })">
+              <option [ngValue]="7">1 week before</option><option [ngValue]="14">2 weeks before</option><option [ngValue]="30">1 month before</option><option [ngValue]="60">2 months before</option><option [ngValue]="90">3 months before</option>
+            </select>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Privacy -->
+    <section class="ls-card section" id="section-privacy">
+      <h2><ion-icon name="shield-checkmark-outline"></ion-icon> Privacy & data</h2>
+      @if (prefs(); as p) {
+        <label class="toggle"><span><strong>Hide money amounts</strong><small>Mask figures on screen (useful in public)</small></span><input type="checkbox" class="switch" role="switch" [checked]="p.hide_amounts" (change)="savePrefs({ hide_amounts: !p.hide_amounts }, false)" /></label>
+      }
+      <div class="row-item"><div><strong>Sync & offline data</strong><span>{{ data.pendingCount() }} pending changes · {{ data.conflicts().length }} to review</span></div><ion-button size="small" fill="outline" routerLink="/settings/sync">Open</ion-button></div>
+      <div class="row-item"><div><strong>Export my data</strong><span>Download everything as a JSON file</span></div>
+        <ion-button size="small" fill="outline" (click)="exportData()" [disabled]="exporting()">@if (exporting()) { <ion-spinner name="crescent"></ion-spinner> } @else { Export }</ion-button>
+      </div>
+      <p class="ls-hint">Your data is private to your account and protected by row-level security on the server. Documents live in private storage with no public links. Data cached on this device is removed when you sign out.</p>
+    </section>
+
+    <!-- Danger zone -->
+    <section class="ls-card section danger" id="section-danger">
+      <h2><ion-icon name="warning-outline"></ion-icon> Danger zone</h2>
+      <div class="row-item"><div><strong>Delete account</strong><span>Permanently remove your account and all data</span></div>
+        <ion-button size="small" color="danger" (click)="deleteAccount()" [disabled]="deleting()">@if (deleting()) { <ion-spinner name="crescent"></ion-spinner> } @else { Delete }</ion-button>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="ls-card section" id="section-about">
+      <h2><ion-icon name="information-circle-outline"></ion-icon> About</h2>
+      <div class="row-item"><div><strong>LifeSync</strong><span>Version {{ version }} · {{ platform }}</span></div></div>
+      <p class="ls-hint">LifeSync is an all-in-one personal organizer. Financial figures are entered manually by you; LifeSync never connects to bank accounts.</p>
+      <ion-button expand="block" fill="outline" color="danger" (click)="signOut()" style="margin-top:12px"><ion-icon slot="start" name="log-out-outline"></ion-icon>Sign out</ion-button>
+    </section>
+  </div>
+</ion-content>

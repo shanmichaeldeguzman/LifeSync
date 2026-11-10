@@ -1,0 +1,117 @@
+<ion-header class="ion-hide-lg-up">
+  <ion-toolbar>
+    <ion-title>Finance</ion-title>
+    <ion-buttons slot="end"><app-header-actions></app-header-actions></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ls-page">
+    <div class="ls-page-header">
+      <div>
+        <h1>Finance</h1>
+        <p>Your manually recorded income and spending</p>
+      </div>
+      <div class="actions">
+        <div class="month-nav">
+          <button class="ls-icon-btn" (click)="shift(-1)" aria-label="Previous month"><ion-icon name="chevron-back"></ion-icon></button>
+          <strong>{{ monthLabel() }}</strong>
+          <button class="ls-icon-btn" (click)="shift(1)" [disabled]="isCurrent()" aria-label="Next month"><ion-icon name="chevron-forward"></ion-icon></button>
+        </div>
+        <span class="ion-hide-lg-down"><app-header-actions></app-header-actions></span>
+      </div>
+    </div>
+
+    <div class="ls-banner" style="margin-bottom:16px">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>All amounts are <strong>entered manually by you</strong>. LifeSync does not connect to banks and never asks for banking credentials. These are not bank records.</span>
+    </div>
+
+    <div class="ls-stats">
+      <div class="ls-stat"><div class="label">Income</div><div class="value ls-money income">{{ store.format(totals().income) }}</div></div>
+      <div class="ls-stat"><div class="label">Expenses</div><div class="value ls-money">{{ store.format(totals().expense) }}</div></div>
+      <div class="ls-stat"><div class="label">Net</div><div class="value ls-money" [style.color]="totals().net < 0 ? 'var(--ion-color-danger)' : null">{{ store.format(totals().net) }}</div></div>
+      <div class="ls-stat"><div class="label">Savings rate</div><div class="value">{{ totals().savingsRate }}%</div><div class="sub">of income kept</div></div>
+    </div>
+
+    <div class="links">
+      <a class="link-tile" routerLink="/finance/transactions"><ion-icon name="list-outline"></ion-icon>Transactions</a>
+      <a class="link-tile" routerLink="/finance/budgets"><ion-icon name="pie-chart-outline"></ion-icon>Budgets</a>
+      <a class="link-tile" routerLink="/finance/savings"><ion-icon name="trophy-outline"></ion-icon>Savings</a>
+      <a class="link-tile" routerLink="/finance/recurring"><ion-icon name="repeat-outline"></ion-icon>Recurring</a>
+      <button class="link-tile" (click)="manageCategories()"><ion-icon name="pricetags-outline"></ion-icon>Categories</button>
+      <button class="link-tile" (click)="exportMonth()"><ion-icon name="download-outline"></ion-icon>Export CSV</button>
+    </div>
+
+    <div class="two-col">
+      <div class="ls-card">
+        <div class="ls-card-header"><h3>Income vs expenses</h3><span class="ls-muted ls-small">last 6 months</span></div>
+        <app-chart type="bar" [data]="trendChart()" [height]="260" label="Income versus expenses over six months" [options]="{ scales: { y: { ticks: { callback: moneyTick } } } }"></app-chart>
+      </div>
+      <div class="ls-card">
+        <div class="ls-card-header"><h3>Spending breakdown</h3></div>
+        @if (breakdown().length) {
+          <app-chart type="doughnut" [data]="breakdownChart()" [height]="180" label="Spending by category" [options]="doughnutOptions"></app-chart>
+          <div class="legend">
+            @for (b of breakdown().slice(0, 6); track b.name) {
+              <div><span class="ls-dot" [style.background]="b.color"></span>{{ b.name }}<span class="amt">{{ store.format(b.total) }}</span></div>
+            }
+          </div>
+        } @else {
+          <app-empty-state [compact]="true" icon="pie-chart-outline" title="No expenses this month" message="Record an expense to see where your money goes."></app-empty-state>
+        }
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="ls-card flush">
+        <div class="ls-card-header" style="padding:16px 16px 0;margin-bottom:8px">
+          <h3>Recent transactions</h3>
+          <a routerLink="/finance/transactions">View all</a>
+        </div>
+        @for (t of recent(); track t.id) {
+          <div class="ls-row clickable" (click)="edit(t)" (keydown.enter)="edit(t)" tabindex="0">
+            <span class="ls-icon-tile sm" [style.background]="(store.category(t.category_id)?.color ?? '#94A3B8') + '1f'" [style.color]="store.category(t.category_id)?.color ?? '#94A3B8'">
+              <ion-icon [name]="store.category(t.category_id)?.icon ?? 'wallet-outline'"></ion-icon>
+            </span>
+            <div class="grow">
+              <div class="title">{{ label(t) }}</div>
+              <div class="meta">{{ day(t) }} · {{ store.category(t.category_id)?.name ?? 'Uncategorized' }}</div>
+            </div>
+            <app-sync-badge [status]="t._status"></app-sync-badge>
+            <span class="ls-money" [class.income]="t.type === 'income'">{{ store.format(t.amount, { signed: t.type }) }}</span>
+          </div>
+        } @empty {
+          <app-empty-state [compact]="true" icon="wallet-outline" title="No transactions this month" actionText="Add transaction" (action)="add()"></app-empty-state>
+        }
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="ls-card">
+          <div class="ls-card-header"><h3>Budgets</h3><a routerLink="/finance/budgets">Manage</a></div>
+          @for (b of budgets().slice(0, 4); track b.id) {
+            <div class="budget">
+              <div class="row"><strong class="ls-truncate">{{ b.name }}</strong><span class="ls-muted">{{ store.format(b.spent) }} / {{ store.format(b.limit) }}</span></div>
+              <div class="ls-progress" [class]="'ls-progress ' + b.tone"><span [style.width.%]="b.pct > 100 ? 100 : b.pct"></span></div>
+            </div>
+          } @empty {
+            <p class="ls-muted ls-small" style="margin:0">No budgets for {{ monthLabel() }}. <a routerLink="/finance/budgets">Set one up</a> to get alerts at 80% and 100%.</p>
+          }
+        </div>
+        <div class="ls-card">
+          <div class="ls-card-header"><h3>Savings goals</h3><a routerLink="/finance/savings">Open</a></div>
+          @if (savings().length) {
+            <div class="ls-muted ls-small">Saved across {{ savings().length }} goal{{ savings().length === 1 ? '' : 's' }}</div>
+            <div style="font-size:1.4rem;font-weight:800;margin-top:4px" class="ls-money">{{ store.format(savingsTotal()) }}</div>
+          } @else {
+            <p class="ls-muted ls-small" style="margin:0">Create a savings goal to track progress toward something meaningful.</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="ls-fab">
+    <ion-fab-button (click)="add()" aria-label="Add transaction"><ion-icon name="add"></ion-icon></ion-fab-button>
+  </ion-fab>
+</ion-content>

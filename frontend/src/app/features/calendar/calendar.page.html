@@ -1,0 +1,158 @@
+<ion-header class="ion-hide-lg-up">
+  <ion-toolbar>
+    <ion-title>Calendar</ion-title>
+    <ion-buttons slot="end"><app-header-actions></app-header-actions></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ls-page">
+    <div class="ls-page-header">
+      <div>
+        <h1>{{ title() }}</h1>
+        <p>Events and tasks together</p>
+      </div>
+      <div class="actions">
+        <button class="ls-icon-btn" (click)="manageCategories()" aria-label="Manage event categories" title="Categories"><ion-icon name="pricetags-outline"></ion-icon></button>
+        <span class="ion-hide-lg-down"><app-header-actions></app-header-actions></span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="nav">
+        <button class="ls-icon-btn" (click)="move(-1)" aria-label="Previous"><ion-icon name="chevron-back"></ion-icon></button>
+        <button class="today-btn" (click)="goToday()">Today</button>
+        <button class="ls-icon-btn" (click)="move(1)" aria-label="Next"><ion-icon name="chevron-forward"></ion-icon></button>
+      </div>
+      <div class="ls-segmented views" role="tablist" aria-label="Calendar view">
+        <button role="tab" [attr.aria-selected]="view() === 'month'" [class.active]="view() === 'month'" (click)="setView('month')">Month</button>
+        <button role="tab" [attr.aria-selected]="view() === 'week'" [class.active]="view() === 'week'" (click)="setView('week')">Week</button>
+        <button role="tab" [attr.aria-selected]="view() === 'day'" [class.active]="view() === 'day'" (click)="setView('day')">Day</button>
+      </div>
+      <label class="task-toggle">
+        <input type="checkbox" [checked]="showTasks()" (change)="showTasks.set(!showTasks())" />
+        Show tasks
+      </label>
+    </div>
+
+    @switch (view()) {
+      @case ('month') {
+        <div class="month-layout">
+          <div class="ls-card flush month">
+            <div class="weekdays">
+              @for (w of weekdayLabels(); track $index) { <div>{{ w }}</div> }
+            </div>
+            <div class="grid">
+              @for (c of monthCells(); track c.key) {
+                <button class="cell" [class.muted]="!c.inMonth" [class.today]="c.today" [class.selected]="isSameDay(c.date, selected())" (click)="selectDay(c.date)" (dblclick)="openDay(c.date)" [attr.aria-label]="c.date.toDateString() + ', ' + c.entries.length + ' items'">
+                  <span class="num">{{ c.date.getDate() }}</span>
+                  <span class="items">
+                    @for (e of c.entries.slice(0, 3); track e.key) {
+                      <span class="pill" [class.task]="e.kind === 'task'" [class.done]="e.done" [style.--c]="e.color">{{ e.title }}</span>
+                    }
+                    @if (c.entries.length > 3) { <span class="more">+{{ c.entries.length - 3 }} more</span> }
+                  </span>
+                  @if (c.entries.length) {
+                    <span class="dots">
+                      @for (e of c.entries.slice(0, 4); track e.key) { <span class="ls-dot" [style.background]="e.color"></span> }
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="agenda">
+            <div class="ls-card-header" style="margin:4px 4px 10px">
+              <h3>{{ selected().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) }}</h3>
+              <button class="link" (click)="openDay(selected())">Open day</button>
+            </div>
+            <ng-container *ngTemplateOutlet="entryList; context: { $implicit: selectedEntries() }"></ng-container>
+          </div>
+        </div>
+      }
+
+      @case ('week') {
+        <div class="week">
+          @for (d of weekDays(); track d.key) {
+            <div class="week-day ls-card" [class.today]="d.today">
+              <button class="week-head" (click)="openDay(d.date)">
+                <span class="dow">{{ d.date.toLocaleDateString(undefined, { weekday: 'short' }) }}</span>
+                <span class="dnum">{{ d.date.getDate() }}</span>
+              </button>
+              <div class="week-items">
+                @for (e of d.entries; track e.key) {
+                  <button class="week-item" [style.--c]="e.color" [class.done]="e.done" (click)="openEntry(e)">
+                    <span class="t">{{ e.allDay ? 'All day' : (e.kind === 'task' ? 'Due ' : '') + e.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) }}</span>
+                    <span class="n">@if (e.kind === 'task') { <ion-icon [name]="e.done ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon> }{{ e.title }}</span>
+                  </button>
+                } @empty {
+                  <span class="free">Free</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @case ('day') {
+        <div class="ls-card flush day">
+          @if (dayAllDay().length) {
+            <div class="allday">
+              <span class="hour-label">All day</span>
+              <div class="slot">
+                @for (e of dayAllDay(); track e.key) {
+                  <button class="day-item" [style.--c]="e.color" (click)="openEntry(e)"><strong>{{ e.title }}</strong></button>
+                }
+              </div>
+            </div>
+          }
+          @for (h of hours; track h) {
+            <div class="hour-row">
+              <span class="hour-label">{{ hourLabel(h) }}</span>
+              <div class="slot">
+                @for (e of entriesAtHour(h); track e.key) {
+                  <button class="day-item" [style.--c]="e.color" [class.done]="e.done" (click)="openEntry(e)">
+                    <strong>@if (e.kind === 'task') { <ion-icon [name]="e.done ? 'checkmark-circle' : 'ellipse-outline'" (click)="toggleTask(e, $event)"></ion-icon> } {{ e.title }}</strong>
+                    <span>{{ timeLabel(e) }}@if (e.location) { · {{ e.location }} }</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <ng-template #entryList let-entries>
+    @if (entries.length === 0) {
+      <div class="ls-card"><app-empty-state [compact]="true" icon="calendar-clear-outline" title="Nothing scheduled" message="Enjoy the free time, or add an event." actionText="Add event" (action)="newEvent()"></app-empty-state></div>
+    } @else {
+      <div class="ls-card flush">
+        @for (e of entries; track e.key) {
+          <div class="ls-row clickable" (click)="openEntry(e)" (keydown.enter)="openEntry(e)" tabindex="0">
+            @if (e.kind === 'task') {
+              <button class="ls-check" [class.checked]="e.done" (click)="toggleTask(e, $event)" [attr.aria-label]="e.done ? 'Mark not completed' : 'Mark completed'">@if (e.done) { <ion-icon name="checkmark"></ion-icon> }</button>
+            } @else {
+              <span class="bar" [style.background]="e.color"></span>
+            }
+            <div class="grow">
+              <div class="title" [class.done]="e.done">{{ e.title }}</div>
+              <div class="meta">
+                <span>{{ timeLabel(e) }}</span>
+                @if (e.location) { <span><ion-icon name="location-outline"></ion-icon> {{ e.location }}</span> }
+                @if (e.event?.recurrence && e.event?.recurrence !== 'none') { <ion-icon name="repeat-outline" title="Repeats"></ion-icon> }
+                <span class="ls-chip" [class.primary]="e.kind === 'event'">{{ e.kind === 'task' ? 'Task' : 'Event' }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </ng-template>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="ls-fab">
+    <ion-fab-button (click)="newEvent()" aria-label="New event"><ion-icon name="add"></ion-icon></ion-fab-button>
+  </ion-fab>
+</ion-content>

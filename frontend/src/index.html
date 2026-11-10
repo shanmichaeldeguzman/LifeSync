@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LifeSync: Personal Organizer</title>
+    <base href="/" />
+    <meta name="description" content="LifeSync brings your tasks, calendar, habits, notes, finances, documents and goals together in one private, offline-ready app." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f8fc" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+    <link rel="apple-touch-icon" href="assets/icon/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="LifeSync" />
+    <style>
+      /* Pre-boot splash so the first paint is on-brand rather than blank. */
+      html, body { background: #f7f8fc; }
+      @media (prefers-color-scheme: dark) { html:not(.ion-palette-light), body { background: #0f1117; } }
+      .boot { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+      .boot span { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #635bff, #8b85ff); box-shadow: 0 10px 30px rgba(99, 91, 255, 0.35); animation: boot 1.2s ease-in-out infinite; }
+      @keyframes boot { 50% { transform: scale(0.9); opacity: 0.8; } }
+    </style>
+  </head>
+  <body>
+    <app-root><div class="boot" aria-label="Loading LifeSync"><span></span></div></app-root>
+    <noscript>LifeSync requires JavaScript to run.</noscript>
+  </body>
+</html>

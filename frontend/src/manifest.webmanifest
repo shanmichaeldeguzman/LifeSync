@@ -1,0 +1,17 @@
+{
+  "name": "LifeSync: Personal Organizer",
+  "short_name": "LifeSync",
+  "description": "Tasks, calendar, habits, notes, finances, documents and goals in one private app.",
+  "theme_color": "#635BFF",
+  "background_color": "#F7F8FC",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "./",
+  "start_url": "./dashboard",
+  "categories": ["productivity", "lifestyle", "finance"],
+  "icons": [
+    { "src": "assets/icon/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
