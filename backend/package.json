@@ -1,0 +1,39 @@
+{
+  "name": "lifesync-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LifeSync REST API (Express + Supabase)",
+  "type": "module",
+  "main": "dist/server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:db": "vitest run tests/db"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
+    "cors": "2.8.6",
+    "dotenv": "^17.0.0",
+    "express": "5.3.0",
+    "express-rate-limit": "8.3.0",
+    "helmet": "8.3.0",
+    "pino": "^10.0.0",
+    "pino-http": "11.0.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "7.3.2",
+    "tsx": "4.23.15",
+    "typescript": "~5.9.0",
+    "vitest": "^4.0.0"
+  }
+}
