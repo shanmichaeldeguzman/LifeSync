@@ -81,7 +81,7 @@ const COLLAPSE_KEY = 'lifesync-sidebar-collapsed';
         }
         <ion-router-outlet></ion-router-outlet>
 
-        <nav class="bottom-nav" aria-label="Primary">
+        <nav class="bottom-nav" id="ls-bottom-nav" aria-label="Primary">
           @for (item of bottomItems; track item.path) {
             <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab" [class.active]="item.path === '/more' && moreActive()">
               <span class="tab-icon">

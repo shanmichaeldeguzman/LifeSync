@@ -661,3 +661,8 @@ ion-alert .alert-wrapper {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* On phones the toolbar already shows the page name. */
+@media (max-width: 991px) {
+  .ls-page-header h1.page-title { display: none; }
+}

@@ -17,6 +17,15 @@ export class ThemeService {
     this.apply();
   }
 
+  /** True when the user picked a theme on this device (it then takes precedence). */
+  hasLocalChoice(): boolean {
+    try {
+      return localStorage.getItem(KEY) !== null;
+    } catch {
+      return false;
+    }
+  }
+
   set(mode: ThemeMode) {
     this.mode.set(mode);
     try {

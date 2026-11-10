@@ -32,13 +32,15 @@ export class SessionService {
       const user = this.auth.user();
       untracked(() => void this.onUserChanged(user?.id ?? null));
     });
-    // Apply the account's saved theme once preferences are known on this device.
+    // On a device without its own theme choice, adopt the account's saved theme.
     effect(() => {
       const prefs = this.data.preferences();
       const uid = this.data.userId();
       if (prefs && uid && this.appliedThemeFor !== uid) {
         this.appliedThemeFor = uid;
-        untracked(() => this.theme.set(prefs.theme));
+        untracked(() => {
+          if (!this.theme.hasLocalChoice()) this.theme.set(prefs.theme);
+        });
       }
     });
   }

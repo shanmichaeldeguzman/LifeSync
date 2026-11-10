@@ -26,7 +26,7 @@ import { HabitFormModal } from './habit-form.modal';
     <ion-content>
       <div class="ls-page">
         <div class="ls-page-header">
-          <div><h1>Habits</h1><p>Small, consistent steps. Missing a day is fine. Just pick it back up.</p></div>
+          <div><h1 class="page-title">Habits</h1><p>Small, consistent steps. Missing a day is fine. Just pick it back up.</p></div>
           <div class="actions ion-hide-lg-down"><app-header-actions></app-header-actions></div>
         </div>
 

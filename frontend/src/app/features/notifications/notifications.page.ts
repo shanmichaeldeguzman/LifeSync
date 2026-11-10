@@ -36,7 +36,7 @@ const ROUTES: Record<string, (id: string) => string> = {
       <ion-refresher slot="fixed" (ionRefresh)="refresh($event)"><ion-refresher-content></ion-refresher-content></ion-refresher>
       <div class="ls-page narrow">
         <div class="ls-page-header">
-          <div><h1>Notifications</h1><p>{{ unread() }} unread</p></div>
+          <div><h1 class="page-title">Notifications</h1><p>{{ unread() }} unread</p></div>
           <div class="actions">
             <button class="ls-filter-chip" (click)="markAll()" [disabled]="!unread()"><ion-icon name="checkmark-done-outline" style="vertical-align:-2px"></ion-icon> Mark all read</button>
             <button class="ls-icon-btn ion-hide-lg-down" routerLink="/settings" [queryParams]="{ section: 'notifications' }" aria-label="Notification settings"><ion-icon name="options-outline"></ion-icon></button>

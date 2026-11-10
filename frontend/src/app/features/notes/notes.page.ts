@@ -27,7 +27,7 @@ type Filter = 'all' | 'pinned' | 'favorites' | 'archived';
     <ion-content>
       <div class="ls-page">
         <div class="ls-page-header">
-          <div><h1>Notes</h1><p>{{ activeCount() }} notes · capture ideas, plans and lists</p></div>
+          <div><h1 class="page-title">Notes</h1><p>{{ activeCount() }} notes · capture ideas, plans and lists</p></div>
           <div class="actions">
             <button class="ls-icon-btn" (click)="manageCategories()" aria-label="Manage note categories" title="Categories"><ion-icon name="pricetags-outline"></ion-icon></button>
             <span class="ion-hide-lg-down"><app-header-actions></app-header-actions></span>

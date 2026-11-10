@@ -32,7 +32,7 @@ type SortBy = 'due' | 'priority' | 'created' | 'title';
       <div class="ls-page">
         <div class="ls-page-header">
           <div>
-            <h1>Tasks</h1>
+            <h1 class="page-title">Tasks</h1>
             <p>{{ stats().pending }} open · {{ stats().completedWeek }} completed this week</p>
           </div>
           <div class="actions">
@@ -239,7 +239,7 @@ export class TasksPage {
           if (t.status === 'completed') { add('done', 'Completed', 6, t); break; }
           const due = t.due_at ? new Date(t.due_at) : null;
           if (!due) add('none', 'No date', 5, t);
-          else if (due < today) add('overdue', 'Overdue', 0, t);
+          else if (due < new Date()) add('overdue', 'Overdue', 0, t);
           else if (due < tomorrow) add('today', 'Today', 1, t);
           else if (due < dayAfter) add('tomorrow', 'Tomorrow', 2, t);
           else if (due < weekEnd) add('week', 'Next 7 days', 3, t);

@@ -27,7 +27,7 @@ type Tab = 'active' | 'completed' | 'abandoned';
     <ion-content>
       <div class="ls-page">
         <div class="ls-page-header">
-          <div><h1>Goals</h1><p>{{ counts().active }} active · {{ counts().completed }} achieved</p></div>
+          <div><h1 class="page-title">Goals</h1><p>{{ counts().active }} active · {{ counts().completed }} achieved</p></div>
           <div class="actions ion-hide-lg-down"><app-header-actions></app-header-actions></div>
         </div>
 

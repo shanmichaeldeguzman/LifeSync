@@ -17,7 +17,8 @@ export class UiService {
       color,
       position: 'bottom',
       cssClass: 'ls-toast',
-      positionAnchor: undefined,
+      // On phones, float above the bottom navigation instead of underneath it.
+      positionAnchor: window.innerWidth < 992 && document.getElementById('ls-bottom-nav') ? 'ls-bottom-nav' : undefined,
       buttons: [{ icon: 'close', role: 'cancel', side: 'end' }],
       swipeGesture: 'vertical',
     });

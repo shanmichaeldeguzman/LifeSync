@@ -14,13 +14,7 @@
       <div class="hero-text">
         <p class="date">{{ dateLabel() }} · {{ timeLabel() }}</p>
         <h1>{{ greeting() }}, {{ firstName() }}</h1>
-        <p class="sub">
-          @if (taskStats().total - taskStats().done > 0) {
-            You have {{ taskStats().total - taskStats().done }} task{{ taskStats().total - taskStats().done === 1 ? '' : 's' }} for today@if (upcoming().length) { and {{ upcoming().length }} upcoming event{{ upcoming().length === 1 ? '' : 's' }} }.
-          } @else {
-            Your day is clear. A great time to plan ahead.
-          }
-        </p>
+        <p class="sub">{{ summary() }}</p>
       </div>
       <div class="hero-actions ion-hide-lg-down"><app-header-actions></app-header-actions></div>
     </section>

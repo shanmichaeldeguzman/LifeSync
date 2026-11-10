@@ -22,8 +22,8 @@ export function markdownExcerpt(src: string, max = 160): string {
     .replace(/`([^`]*)`/g, '$1')
     .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]*)]\([^)]*\)/g, '$1')
+    .replace(/^(\s*[-*+]\s+)\[[ xX]]\s*/gm, '$1')
     .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+\.)\s+/gm, '')
-    .replace(/- \[[ x]]\s*/gi, '')
     .replace(/[*_~]{1,3}/g, '')
     .replace(/\s+/g, ' ')
     .trim();

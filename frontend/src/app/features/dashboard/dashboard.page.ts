@@ -68,7 +68,7 @@ export class DashboardPage implements OnDestroy {
   readonly taskStats = computed(() => {
     const list = this.todayTasks();
     const done = list.filter((t) => t.status === 'completed').length;
-    const overdue = list.filter((t) => t.status !== 'completed' && new Date(t.due_at!) < startOfDay(this.now())).length;
+    const overdue = list.filter((t) => t.status !== 'completed' && new Date(t.due_at!) < this.now()).length;
     const open = this.data.list('tasks')().filter((t) => t.status !== 'completed').length;
     return { total: list.length, done, overdue, open };
   });
@@ -147,6 +147,14 @@ export class DashboardPage implements OnDestroy {
     return this.reminders.plan().filter((r) => r.at.getTime() > Date.now()).slice(0, 4);
   });
   readonly unread = computed(() => this.data.list('notifications')().filter((n) => !n.read_at).length);
+
+  readonly summary = computed(() => {
+    const open = this.taskStats().total - this.taskStats().done;
+    const events = this.upcoming().length;
+    if (open <= 0) return events ? `Your tasks are done. ${events} event${events === 1 ? '' : 's'} coming up this week.` : 'Your day is clear. A great time to plan ahead.';
+    const tasks = `${open} task${open === 1 ? '' : 's'} for today`;
+    return events ? `You have ${tasks} and ${events} upcoming event${events === 1 ? '' : 's'}.` : `You have ${tasks}.`;
+  });
 
   reminderTime(d: Date) {
     return relativeDateTime(d.toISOString());

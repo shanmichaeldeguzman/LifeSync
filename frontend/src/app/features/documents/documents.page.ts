@@ -24,7 +24,7 @@ import { DocumentPreviewModal } from './document-preview.modal';
     <ion-content>
       <div class="ls-page">
         <div class="ls-page-header">
-          <div><h1>Documents</h1><p>Your important files, private and organized · {{ docs().length }} stored</p></div>
+          <div><h1 class="page-title">Documents</h1><p>Your important files, private and organized · {{ docs().length }} stored</p></div>
           <div class="actions ion-hide-lg-down"><app-header-actions></app-header-actions></div>
         </div>
 
