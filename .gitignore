@@ -22,3 +22,6 @@ supabase/.branches/
 Thumbs.db
 .idea/
 *.log
+
+# Built binaries
+/release/
