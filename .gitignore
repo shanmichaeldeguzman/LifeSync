@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+# Environment / secrets — never commit
+.env
+.env.*
+!.env.example
+deploy.env
+*.keystore
+*.jks
+# Build output
+dist/
+www/
+.angular/
+coverage/
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+# Vercel
+.vercel
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.log
